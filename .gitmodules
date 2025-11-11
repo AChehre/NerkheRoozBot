@@ -1,3 +1,6 @@
 [submodule "src/components/TelegramATable"]
 	path = src/components/TelegramATable
 	url = https://github.com/AChehre/TelegramATable
+[submodule "src/services/GetPrices"]
+	path = src/services/GetPrices
+	url = https://github.com/AChehre/GetPrices
