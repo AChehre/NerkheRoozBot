@@ -1,0 +1,3 @@
+[submodule "src/components/TelegramATable"]
+	path = src/components/TelegramATable
+	url = https://github.com/AChehre/TelegramATable
