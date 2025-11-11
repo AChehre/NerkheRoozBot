@@ -1,0 +1,21 @@
+{
+	"name": "talamala",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"test": "vitest"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"nodemon": "^3.1.10",
+		"vitest": "~3.2.0",
+		"wrangler": "^4.43.0"
+	},
+	"dependencies": {
+		"grammy": "^1.38.3",
+		"telegraf": "^4.16.3"
+	}
+}
