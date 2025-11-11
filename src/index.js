@@ -1,20 +1,17 @@
-import { Bot } from 'grammy';
-require('dotenv').config();
+import { createBot, setCommands } from './services/botService';
+
 
 export default {
 	async fetch(request, env, ctx) {
-		const token = process.env.BOT_TOKEN;
+
+		const token = env.BOT_TOKEN;
 		if (!token) {
 			return new Response('BOT_TOKEN not set', { status: 500 });
 		}
 
-		const bot = new Bot(token);
+		const bot = await createBot(token);
 
-		await bot.init();
-
-		bot.command('start', (ctx) => ctx.reply('👋 Hello from Cloudflare Worker!'));
-		bot.command('ping', (ctx) => ctx.reply('🏓 pong!'));
-		bot.on('message', (ctx) => ctx.reply('You said: ' + ctx.message.text));
+		await setCommands(bot);
 
 		if (request.method === 'POST') {
 			try {

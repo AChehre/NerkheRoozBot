@@ -4,9 +4,9 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "talamala",
+	"name": "usdt-prices-bot",
 	"main": "src/index.js",
-	"compatibility_date": "2025-10-11",
+	"compatibility_date": "2025-11-11",
 	"observability": {
 		"enabled": true
 	}
