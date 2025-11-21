@@ -2,7 +2,8 @@ import { createBot, setCommands } from './services/botService';
 
 export default {
 	async fetch(request, env, ctx) {
-		
+		const cached = await env.USDT_PRICES_CACHE.get('prices', { type: 'json' });
+
 		const token = env.BOT_TOKEN;
 		if (!token) {
 			return new Response('BOT_TOKEN not set', { status: 500 });
@@ -10,7 +11,7 @@ export default {
 
 		const bot = await createBot(token);
 
-		await setCommands(bot);
+		await setCommands(env, bot);
 
 		if (request.method === 'POST') {
 			try {

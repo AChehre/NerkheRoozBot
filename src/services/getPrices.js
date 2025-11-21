@@ -1,8 +1,29 @@
 const { getPrices } = require('./GetPrices/services/getPrices');
 
-async function getUSDTPrices() {
-	const allPrices = await getPrices();
+const CACHE_KEY = "ALL_PRICES_CACHE";
+const CACHE_TTL = 60; // 1 minute
 
+async function cachedGetPrices(env) {
+    const cached = await env.USDT_PRICES_CACHE.get(CACHE_KEY, { type: "json" });
+
+    if (cached) {
+        return cached;
+    }
+
+    const freshPrices = await getPrices();
+
+    await env.USDT_PRICES_CACHE.put(
+        CACHE_KEY,
+        JSON.stringify(freshPrices),
+        { expirationTtl: CACHE_TTL }
+    );
+
+    return freshPrices;
+}
+
+async function getUSDTPrices(env) {
+	const allPrices = await cachedGetPrices(env);
+	console.log('All prices fetched:', allPrices);
 	const combined = {};
 	for (const [key, result] of allPrices) {
 		if (!result.success) {
@@ -16,5 +37,6 @@ async function getUSDTPrices() {
 
 	return combined;
 }
+
 
 module.exports = { getUSDTPrices };

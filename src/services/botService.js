@@ -10,8 +10,8 @@ async function createBot(token) {
 	return bot;
 }
 
-async function getTableData(page, pageSize) {
-	const prices = await getUSDTPrices();
+async function getTableData(env, page, pageSize) {
+	const prices = await getUSDTPrices(env);
 
 	const entries = Object.entries(prices);
 	const totalCount = entries.length;
@@ -51,15 +51,14 @@ async function getTableData(page, pageSize) {
 		totalCount,
 	};
 
-	console.log('DEBUG tableData:', JSON.stringify(tableData, null, 2));
 	return tableData;
 }
 
 const pageSize = 4;
 
-async function setCommands(bot) {
+async function setCommands(env, bot) {
 	bot.command('start', async (ctx) => {
-		const tableData = await getTableData(1, pageSize);
+		const tableData = await getTableData(env, 1, pageSize);
 		console.log('DEBUG tableData:', JSON.stringify(tableData, null, 2));
 		await ctx.reply('📊 USDT Prices', {
 			reply_markup: createTable('usdt', 'list', tableData, 1, pageSize),
@@ -69,7 +68,7 @@ async function setCommands(bot) {
 	bot.on('callback_query:data', async (ctx) => {
 		await processATable(ctx, {
 			getTableData: async (queryKey, page, pageSize) => {
-				return await getTableData(page, pageSize);
+				return await getTableData(env, page, pageSize);
 			},
 		});
 	});
