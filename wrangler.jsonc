@@ -6,7 +6,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "usdt-prices-bot",
 	"main": "src/index.js",
-	"compatibility_date": "2025-11-11",
+	"compatibility_date": "2025-11-19",
 	"observability": {
 		"enabled": true
 	}
