@@ -1,7 +1,8 @@
 import { Bot } from 'grammy';
 
-const { getUSDTPrices } = require('./getPrices');
+const { cachedGetPrices } = require('./getPrices');
 const { createTable, processATable } = require('../components/TelegramATable/optimizedATable');
+const { AssetType } = require('../services/GetPrices/services/assetTypes');
 
 async function createBot(token) {
 	const bot = new Bot(token);
@@ -10,70 +11,181 @@ async function createBot(token) {
 	return bot;
 }
 
-async function getTableData(env, page, pageSize) {
-	const prices = await getUSDTPrices(env);
+const pageSize = 4;
 
-	const entries = Object.entries(prices);
-	const totalCount = entries.length;
+const commands = {
+	USDT: {
+		button: 'asset_USDT',
+		queryKey: 'USDT',
+		assets: [AssetType.USDT],
+	},
 
-	// Calculate slice (pagination)
+	BITCOIN: {
+		button: 'asset_BITCOIN',
+		queryKey: 'BITCOIN',
+		assets: [AssetType.BITCOIN],
+	},
+
+	GOLD: {
+		button: 'asset_GOLD',
+		queryKey: 'GOLD',
+		assets: [AssetType.GOLD18, AssetType.COIN],
+	},
+};
+
+const commandByQueryKey = Object.fromEntries(Object.values(commands).map((cmd) => [cmd.queryKey, cmd]));
+
+async function setCommands(env, bot) {
+	await bot.api.setMyCommands([
+		{ command: 'start', description: 'شروع' },
+		{ command: 'about', description: 'درباره' },
+	]);
+
+	bot.command('start', async (ctx) => {
+		await ctx.reply('یک گزینه را انتخاب کنید:', {
+			reply_markup: {
+				inline_keyboard: [
+					[
+						{ text: 'تتر', callback_data: commands.USDT.button },
+						{ text: ' بیت‌کوین', callback_data: commands.BITCOIN.button },
+					],
+					[{ text: 'طلا و سکه', callback_data: commands.GOLD.button }],
+				],
+			},
+		});
+	});
+
+	setAboutCommand(bot);
+
+	bot.callbackQuery(/asset_.+/, async (ctx) => {
+		const asset = ctx.callbackQuery.data.replace('asset_', '');
+
+		const assetsToLoad = commandByQueryKey[asset]?.assets || [];
+
+		const tableName = asset + 'Table';
+		const queryKey = asset;
+
+		const tableData = await getTableData(env, 1, pageSize, assetsToLoad, asset);
+
+		await ctx.reply('نرخ روز:', {
+			reply_markup: createTable(tableName, queryKey, tableData, 1, pageSize),
+		});
+	});
+
+	bot.on('callback_query:data', async (ctx) => {
+		const data = ctx.callbackQuery.data;
+
+		if (!data.startsWith('A;')) return;
+
+		const parts = data.split(';');
+		if (parts.length < 4) return;
+
+		const queryKey = parts[2];
+		const cmd = commandByQueryKey[queryKey];
+		if (!cmd) return;
+
+		const handler = createQueryHandler(env, cmd.assets, cmd.queryKey);
+
+		return processATable(ctx, handler);
+	});
+
+	// Test command
+	bot.command('ping', (ctx) => ctx.reply('🏓 pong!'));
+}
+
+function createQueryHandler(env, assetList, queryKey) {
+	return {
+		async getTableData(_, page, size, rowKey) {
+			return await getTableData(env, page, size, assetList, queryKey);
+		},
+	};
+}
+
+function setAboutCommand(bot) {
+	bot.command('about', async (ctx) => {
+		const text = `
+🤖 **درباره ربات**
+
+این ربات برای نمایش قیمت لحظه‌ای ارزهای دیجیتال و طلا ساخته شده است.
+
+📂 سورس کد:
+https://github.com/YOUR_GITHUB_PROJECT
+
+💬 برای ارسال انتقاد یا پیشنهاد:
+@A_Chehre
+
+با تشکر از حمایت شما 🙏
+		`;
+		await ctx.reply(text);
+	});
+}
+
+async function getTableData(env, page, pageSize, assets = []) {
+	// Fetch all prices for these assets
+	const all = await cachedGetPrices(env, assets);
+	// all = [ [exchangeName, {result, title, assets}], ... ]
+
+	// Flatten into rows
+	const flatRows = [];
+
+	for (const [exchange, { result }] of all) {
+		if (!result.success) continue;
+
+		for (const item of result.data) {
+			if (assets.includes(item.type)) {
+				flatRows.push({
+					asset: item.type,
+					exchange,
+					price: item.price,
+				});
+			}
+		}
+	}
+
+	// Total count BEFORE pagination
+	const totalCount = flatRows.length;
+
+	// Pagination
 	const sliceStart = (page - 1) * pageSize;
-	const sliceEnd = sliceStart + pageSize;
-	const slice = entries.slice(sliceStart, sliceEnd);
+	const slice = flatRows.slice(sliceStart, sliceStart + pageSize);
 
-	// Filter out zero prices
-	const validPrices = entries.map(([_, price]) => price).filter((price) => price > 0);
+	// Average price per asset
+	const grouped = {};
+	for (const row of flatRows) {
+		if (!grouped[row.asset]) grouped[row.asset] = [];
+		grouped[row.asset].push(row.price);
+	}
 
-	// Calculate average
-	const average = validPrices.length ? validPrices.reduce((sum, p) => sum + p, 0) / validPrices.length : 0;
+	const averageRows = Object.entries(grouped).map(([asset, arr]) => ({
+		asset,
+		avg: Math.round(arr.reduce((a, b) => a + b, 0) / arr.length),
+	}));
 
 	const tableData = {
-		columns: ['ردیف', 'اکسچنج', 'قیمت'],
+		columns: ['ردیف', 'دارایی', 'اکسچنج', 'قیمت'],
 
 		rows: [
-			// Normal rows
-			...slice.map(([exchange, price], i) => ({
-				key: exchange,
+			...slice.map((row, i) => ({
+				key: `${row.asset}_${row.exchange}`,
 				cells: [
-					{ value: (sliceStart + i + 1).toLocaleString('fa-IR') }, // actual row number
-					{ value: exchange },
-					{ value: price.toLocaleString('fa-IR') },
+					{ value: (sliceStart + i + 1).toLocaleString('fa-IR') },
+					{ value: row.asset },
+					{ value: row.exchange },
+					{ value: row.price.toLocaleString('fa-IR') },
 				],
 			})),
 
-			// Average row (last row)
-			{
-				key: 'average',
-				cells: [{ value: '📊' }, { value: 'میانگین' }, { value: Math.round(average).toLocaleString('fa-IR') }],
-			},
+			// Average rows (one per asset)
+			...averageRows.map((avg) => ({
+				key: `avg_${avg.asset}`,
+				cells: [{ value: '📊' }, { value: avg.asset }, { value: 'میانگین' }, { value: avg.avg.toLocaleString('fa-IR') }],
+			})),
 		],
 
 		totalCount,
 	};
 
 	return tableData;
-}
-
-const pageSize = 4;
-
-async function setCommands(env, bot) {
-	bot.command('start', async (ctx) => {
-		const tableData = await getTableData(env, 1, pageSize);
-		console.log('DEBUG tableData:', JSON.stringify(tableData, null, 2));
-		await ctx.reply('📊 USDT Prices', {
-			reply_markup: createTable('usdt', 'list', tableData, 1, pageSize),
-		});
-	});
-
-	bot.on('callback_query:data', async (ctx) => {
-		await processATable(ctx, {
-			getTableData: async (queryKey, page, pageSize) => {
-				return await getTableData(env, page, pageSize);
-			},
-		});
-	});
-
-	bot.command('ping', (ctx) => ctx.reply('🏓 pong!'));
 }
 
 export { createBot, setCommands };
