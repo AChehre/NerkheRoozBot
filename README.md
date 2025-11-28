@@ -1,6 +1,6 @@
-# <img src="https://github.com/AChehre/USDTPricesbot/blob/main/images/usdt.png" width="40" height="40" style="vertical-align:middle;"> USDT Prices Telegram Bot
+# <img src="https://github.com/AChehre/NerkheRooz/blob/main/images/NerkheRooz.png" width="40" height="40" style="vertical-align:middle;"> NerkheRooz Telegram Bot
 
-<img src="https://github.com/AChehre/USDTPricesbot/blob/main/images/telegram.png" width="25" height="25" style="vertical-align:middle;"> **Telegram Bot:** [@USDTPricesBot](https://t.me/USDTPricesBot)
+<img src="https://github.com/AChehre/NerkheRooz/blob/main/images/telegram.png" width="25" height="25" style="vertical-align:middle;"> **Telegram Bot:** [@NerkheRooz_bot](https://t.me/NerkheRooz_bot)
 
 A Cloudflare Worker that fetches USDT→Toman prices from multiple
 exchanges, caches them in Cloudflare KV for 1 minute, and exposes the
