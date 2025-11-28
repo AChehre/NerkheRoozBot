@@ -2,9 +2,7 @@ import { createBot, setCommands } from './services/botService';
 
 export default {
 	async fetch(request, env, ctx) {
-	
-		// const token = env.BOT_TOKEN;
-		const token = "8300969401:AAGOdSOPb2U3xfdcoUtenSoxA1P86Z3mnH0";
+		const token = env.BOT_TOKEN;
 		if (!token) {
 			return new Response('BOT_TOKEN not set', { status: 500 });
 		}

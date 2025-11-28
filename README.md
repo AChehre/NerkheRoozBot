@@ -8,7 +8,7 @@ data through a Telegram bot webhook.
 
 ## 1. Create the KV Namespace
 
-    npx wrangler kv namespace create USDT_PRICES_CACHE
+    npx wrangler kv namespace create PRICES_CACHE
 
 Copy the generated KV namespace ID and add it to your `wrangler.jsonc`
 under `kv_namespaces`.

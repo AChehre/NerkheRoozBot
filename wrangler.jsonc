@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "talamala",
+	"name": "nerkhe-rooz-bot",
 	"main": "src/index.js",
 	"compatibility_date": "2025-11-19",
 	"observability": {
@@ -12,8 +12,8 @@
 	},
 	"kv_namespaces": [
 		{
-			"binding": "USDT_PRICES_CACHE",
-			"id": "db6dd1aa8aa5441eb49b0a8cea036de7"
+			"binding": "PRICES_CACHE",
+			"id": "26c2e31e101847e2886eafa418d3195d"
 		}
 	]
 	/**

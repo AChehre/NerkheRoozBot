@@ -17,19 +17,19 @@ const commands = {
 	USDT: {
 		button: 'asset_USDT',
 		queryKey: 'USDT',
-		assets: [AssetType.USDT],
+		assets: [AssetType.USDT.symbol],
 	},
 
 	BITCOIN: {
 		button: 'asset_BITCOIN',
 		queryKey: 'BITCOIN',
-		assets: [AssetType.BITCOIN],
+		assets: [AssetType.BTC.symbol],
 	},
 
 	GOLD: {
 		button: 'asset_GOLD',
 		queryKey: 'GOLD',
-		assets: [AssetType.GOLD18, AssetType.COIN],
+		assets: [AssetType.USD.symbol, AssetType.COIN.symbol, AssetType.GOLD18.symbol],
 	},
 };
 
@@ -49,7 +49,7 @@ async function setCommands(env, bot) {
 						{ text: 'تتر', callback_data: commands.USDT.button },
 						{ text: ' بیت‌کوین', callback_data: commands.BITCOIN.button },
 					],
-					[{ text: 'طلا و سکه', callback_data: commands.GOLD.button }],
+					[{ text: 'طلا،سکه و دلار', callback_data: commands.GOLD.button }],
 				],
 			},
 		});
@@ -123,19 +123,19 @@ https://github.com/YOUR_GITHUB_PROJECT
 async function getTableData(env, page, pageSize, assets = []) {
 	// Fetch all prices for these assets
 	const all = await cachedGetPrices(env, assets);
-	// all = [ [exchangeName, {result, title, assets}], ... ]
+	// all = [ [exchangeName, {result, provider, assets}], ... ]
 
 	// Flatten into rows
 	const flatRows = [];
 
-	for (const [exchange, { result }] of all) {
+	for (const [exchange, { result, provider }] of all) {
 		if (!result.success) continue;
 
 		for (const item of result.data) {
-			if (assets.includes(item.type)) {
+			if (assets.includes(item.type.symbol)) {
 				flatRows.push({
-					asset: item.type,
-					exchange,
+					asset: item.type.title,
+					exchange: provider.title,
 					price: item.price,
 				});
 			}
