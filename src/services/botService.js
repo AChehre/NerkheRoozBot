@@ -152,10 +152,12 @@ async function getTableData(env, page, pageSize, assets = []) {
 		grouped[row.asset].push(row.price);
 	}
 
-	const averageRows = Object.entries(grouped).map(([asset, arr]) => ({
-		asset,
-		avg: Math.round(arr.reduce((a, b) => a + b, 0) / arr.length),
-	}));
+	const averageRows = Object.entries(grouped)
+		.filter(([_, arr]) => arr.length > 1)
+		.map(([asset, arr]) => ({
+			asset,
+			avg: Math.round(arr.reduce((a, b) => a + b, 0) / arr.length),
+		}));
 
 	const tableData = {
 		columns: ['ردیف', 'دارایی', 'اکسچنج', 'قیمت'],
