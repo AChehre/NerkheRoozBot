@@ -1,8 +1,8 @@
 import { Bot } from 'grammy';
 
-const { cachedGetPrices } = require('./getPrices');
+const { GetPrices, GetAveragePrices } = require('./getPrices');
 const { createTable, processATable } = require('../components/TelegramATable/optimizedATable');
-const { AssetType } = require('../services/GetPrices/services/assetTypes');
+const { AssetType } = require('../services/assetTypes');
 
 async function createBot(token) {
 	const bot = new Bot(token);
@@ -118,7 +118,7 @@ function setAboutCommand(bot) {
 
 async function getTableData(env, page, pageSize, assets = []) {
 	// Fetch all prices for these assets
-	const all = await cachedGetPrices(env, assets);
+	const all = await GetPrices(env, assets);
 	// all = [ [exchangeName, {result, provider, assets}], ... ]
 
 	// Flatten into rows

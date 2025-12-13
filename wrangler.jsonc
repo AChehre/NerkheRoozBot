@@ -6,7 +6,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "nerkhe-rooz-bot",
 	"main": "src/index.js",
-	"compatibility_date": "2025-11-19",
+	"compatibility_date": "2025-03-01",
 	"observability": {
 		"enabled": true
 	},
@@ -15,7 +15,8 @@
 			"binding": "PRICES_CACHE",
 			"id": "26c2e31e101847e2886eafa418d3195d"
 		}
-	]
+	],
+	"services": [{ "binding": "NERKHE_ROOZ_API", "service": "nerkhe-rooz-api" }]
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
