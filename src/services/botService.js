@@ -42,14 +42,39 @@ async function setCommands(env, bot) {
 	]);
 
 	bot.command('start', async (ctx) => {
-		await ctx.reply('یک گزینه را انتخاب کنید:', {
+		const averages = await GetAveragePrices(env);
+
+		await ctx.reply('قیمت‌ها به‌صورت میانگین محاسبه شده‌اند.\n' + 'برای مشاهده جزئیات و ریز قیمت‌ها، روی هر گزینه کلیک کنید.', {
 			reply_markup: {
 				inline_keyboard: [
+					// USD
 					[
-						{ text: 'تتر', callback_data: commands.USDT.button },
-						{ text: ' بیت‌کوین', callback_data: commands.BITCOIN.button },
+						{ text: 'دلار', callback_data: commands.GOLD.button },
+						{ text: averages.USD.toLocaleString('fa-IR'), callback_data: 'noop' },
 					],
-					[{ text: 'طلا،سکه و دلار', callback_data: commands.GOLD.button }],
+
+					// USDT
+					[
+						{ text: 'تتر (USDT)', callback_data: commands.USDT.button },
+						{ text: averages.USDT.toLocaleString('fa-IR'), callback_data: 'noop' },
+					],
+					// Gold
+					[
+						{ text: 'طلای ۱۸ عیار', callback_data: commands.GOLD.button },
+						{ text: averages.GOLD18.toLocaleString('fa-IR'), callback_data: 'noop' },
+					],
+
+					// Coin
+					[
+						{ text: 'سکه', callback_data: commands.GOLD.button },
+						{ text: averages.COIN.toLocaleString('fa-IR'), callback_data: 'noop' },
+					],
+					
+					// Bitcoin
+					[
+						{ text: 'بیت‌کوین (BTC)', callback_data: commands.BITCOIN.button },
+						{ text: averages.BTC.toLocaleString('fa-IR'), callback_data: 'noop' },
+					],
 				],
 			},
 		});
