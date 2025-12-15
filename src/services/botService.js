@@ -44,40 +44,55 @@ async function setCommands(env, bot) {
 	bot.command('start', async (ctx) => {
 		const averages = await GetAveragePrices(env);
 
-		await ctx.reply('قیمت‌ها به‌صورت میانگین محاسبه شده‌اند.\n' + 'برای مشاهده جزئیات و ریز قیمت‌ها، روی هر گزینه کلیک کنید.', {
-			reply_markup: {
-				inline_keyboard: [
-					// USD
-					[
-						{ text: 'دلار', callback_data: commands.GOLD.button },
-						{ text: averages.USD.toLocaleString('fa-IR'), callback_data: 'noop' },
-					],
+		const tehranDateTime = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+			timeZone: 'Asia/Tehran',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		}).format(new Date());
 
-					// USDT
-					[
-						{ text: 'تتر (USDT)', callback_data: commands.USDT.button },
-						{ text: averages.USDT.toLocaleString('fa-IR'), callback_data: 'noop' },
-					],
-					// Gold
-					[
-						{ text: 'طلای ۱۸ عیار', callback_data: commands.GOLD.button },
-						{ text: averages.GOLD18.toLocaleString('fa-IR'), callback_data: 'noop' },
-					],
+		await ctx.reply(
+			`📅 ${tehranDateTime}\n\n` +
+				'قیمت‌ها به‌صورت میانگین محاسبه شده‌اند.\n' +
+				'برای مشاهده جزئیات و ریز قیمت‌ها، روی هر گزینه کلیک کنید.',
+			{
+				reply_markup: {
+					inline_keyboard: [
+						// USD
+						[
+							{ text: 'دلار', callback_data: commands.GOLD.button },
+							{ text: averages.USD.toLocaleString('fa-IR'), callback_data: 'noop' },
+						],
 
-					// Coin
-					[
-						{ text: 'سکه', callback_data: commands.GOLD.button },
-						{ text: averages.COIN.toLocaleString('fa-IR'), callback_data: 'noop' },
+						// USDT
+						[
+							{ text: 'تتر (USDT)', callback_data: commands.USDT.button },
+							{ text: averages.USDT.toLocaleString('fa-IR'), callback_data: 'noop' },
+						],
+
+						// Gold
+						[
+							{ text: 'طلای ۱۸ عیار', callback_data: commands.GOLD.button },
+							{ text: averages.GOLD18.toLocaleString('fa-IR'), callback_data: 'noop' },
+						],
+
+						// Coin
+						[
+							{ text: 'سکه', callback_data: commands.GOLD.button },
+							{ text: averages.COIN.toLocaleString('fa-IR'), callback_data: 'noop' },
+						],
+
+						// Bitcoin
+						[
+							{ text: 'بیت‌کوین (BTC)', callback_data: commands.BITCOIN.button },
+							{ text: averages.BTC.toLocaleString('fa-IR'), callback_data: 'noop' },
+						],
 					],
-					
-					// Bitcoin
-					[
-						{ text: 'بیت‌کوین (BTC)', callback_data: commands.BITCOIN.button },
-						{ text: averages.BTC.toLocaleString('fa-IR'), callback_data: 'noop' },
-					],
-				],
-			},
-		});
+				},
+			}
+		);
 	});
 
 	setAboutCommand(bot);
