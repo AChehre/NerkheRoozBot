@@ -26,12 +26,44 @@ const commands = {
 		assets: [AssetType.BTC.symbol],
 	},
 
+	USD: {
+		button: 'asset_USD',
+		queryKey: 'USD',
+		assets: [AssetType.USD.symbol],
+	},
+
+	COIN: {
+		button: 'asset_COIN',
+		queryKey: 'COIN',
+		assets: [AssetType.COIN.symbol],
+	},
 	GOLD: {
 		button: 'asset_GOLD',
 		queryKey: 'GOLD',
-		assets: [AssetType.USD.symbol, AssetType.COIN.symbol, AssetType.GOLD18.symbol],
+		assets: [AssetType.GOLD18.symbol],
 	},
 };
+
+const fmt = (value) => (typeof value === 'number' ? value.toLocaleString('fa-IR') : '—');
+
+const priceStatsText = (asset) => {
+  if (!asset) return '—';
+
+  const { min, avg, max } = asset;
+
+  return fmt(avg);
+
+//     if (min === avg && avg === max) {
+//     return `میانگین: ${fmt(avg)}`;
+//   }
+
+//   return (
+//     `میانگین: ${fmt(avg)}\n` +
+//     `کمینه: ${fmt(min)}\n` +
+//     `بیشینه: ${fmt(max)}`
+//   );
+};
+
 
 const commandByQueryKey = Object.fromEntries(Object.values(commands).map((cmd) => [cmd.queryKey, cmd]));
 
@@ -62,32 +94,47 @@ async function setCommands(env, bot) {
 					inline_keyboard: [
 						// USD
 						[
-							{ text: 'دلار', callback_data: commands.GOLD.button },
-							{ text: averages.USD.toLocaleString('fa-IR'), callback_data: 'noop' },
+							{ text: 'دلار', callback_data: commands.USD.button },
+							{
+								text: priceStatsText(averages.USD),
+								callback_data: 'noop',
+							},
 						],
 
 						// USDT
 						[
 							{ text: 'تتر (USDT)', callback_data: commands.USDT.button },
-							{ text: averages.USDT.toLocaleString('fa-IR'), callback_data: 'noop' },
+							{
+								text: priceStatsText(averages.USDT),
+								callback_data: 'noop',
+							},
 						],
 
 						// Gold
 						[
 							{ text: 'طلای ۱۸ عیار', callback_data: commands.GOLD.button },
-							{ text: averages.GOLD18.toLocaleString('fa-IR'), callback_data: 'noop' },
+							{
+								text: priceStatsText(averages.GOLD18),
+								callback_data: 'noop',
+							},
 						],
 
 						// Coin
 						[
-							{ text: 'سکه', callback_data: commands.GOLD.button },
-							{ text: averages.COIN.toLocaleString('fa-IR'), callback_data: 'noop' },
+							{ text: 'سکه', callback_data: commands.COIN.button },
+							{
+								text: priceStatsText(averages.COIN),
+								callback_data: 'noop',
+							},
 						],
 
 						// Bitcoin
 						[
 							{ text: 'بیت‌کوین (BTC)', callback_data: commands.BITCOIN.button },
-							{ text: averages.BTC.toLocaleString('fa-IR'), callback_data: 'noop' },
+							{
+								text: priceStatsText(averages.BTC),
+								callback_data: 'noop',
+							},
 						],
 					],
 				},
