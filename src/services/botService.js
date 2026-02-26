@@ -225,6 +225,8 @@ async function getTableData(env, page, pageSize, assets = []) {
 		}
 	}
 
+	flatRows.sort((a, b) => b.price - a.price);
+
 	// Total count BEFORE pagination
 	const totalCount = flatRows.length;
 
